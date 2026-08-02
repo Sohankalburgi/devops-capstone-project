@@ -12,6 +12,7 @@ from tests.factories import AccountFactory
 from service.common import status  # HTTP Status Codes
 from service.models import db, Account, init_db
 from service.routes import app
+from datetime import date
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
@@ -139,4 +140,56 @@ class TestAccountService(TestCase):
     def test_get_account_not_found(self):
         """ it should not read an account that is not found"""
         resp = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_an_account(self):
+        """It should update an existing account"""
+
+        account = self._create_accounts(1)[0]
+
+        self.assertIsNotNone(account.id)
+
+        # Update the account
+        account.name = "Sohan"
+        account.email = "sohankalburgi@gmail.com"
+        account.address = "Bengaluru, Karnataka"
+        account.phone_number = "9876543210"
+        account.date_joined = date(2026, 8, 2)
+
+        resp = self.client.put(
+            f"{BASE_URL}/{account.id}",
+            json=account.serialize(),
+            content_type="application/json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(data["id"], account.id)
+        self.assertEqual(data["name"], "Sohan")
+        self.assertEqual(data["email"], "sohankalburgi@gmail.com")
+        self.assertEqual(data["address"], "Bengaluru, Karnataka")
+        self.assertEqual(data["phone_number"], "9876543210")
+        self.assertEqual(data["date_joined"], "2026-08-02")
+
+    def test_update_not_found(self):
+        """It should update an non existing account"""
+
+        account = self._create_accounts(1)[0]
+
+        self.assertIsNotNone(account.id)
+
+        # Update the account
+        account.name = "Sohan"
+        account.email = "sohankalburgi@gmail.com"
+        account.address = "Bengaluru, Karnataka"
+        account.phone_number = "9876543210"
+        account.date_joined = date(2026, 8, 2)
+
+        resp = self.client.put(
+            f"{BASE_URL}/0",
+            json=account.serialize(),
+            content_type="application/json",
+        )
+
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
