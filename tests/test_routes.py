@@ -28,6 +28,7 @@ HTTPS_ENVIRON = {'wsgi.url_scheme': 'https'}
 class TestAccountService(TestCase):
     """Account Service Tests"""
 
+
     @classmethod
     def setUpClass(cls):
         """Run once before all tests"""
@@ -137,7 +138,7 @@ class TestAccountService(TestCase):
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-        self.assertEqual(data['name'],account.name)
+        self.assertEqual(data['name'], account.name)
 
     def test_get_account_not_found(self):
         """ it should not read an account that is not found"""
@@ -204,7 +205,7 @@ class TestAccountService(TestCase):
             f"{BASE_URL}/{account.id}",
             content_type="application/json"
         )
-        self.assertEqual(resp.status_code,status.HTTP_204_NO_CONTENT)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_method_not_allowed(self):
         """It should not allow an illegal method call"""
